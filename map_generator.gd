@@ -25,12 +25,12 @@ const emotion_colors : Array[Color] = [
 	Color.REBECCA_PURPLE
 ]
 @onready var locations: Node2D = $Locations
-
+@onready var borders: Node2D = $Borders
 @onready var cam: Camera2D = $Camera2D
 
 @export var margin = 60
-@export var min_distance = 150
-@export var num_locations = 10
+@export var min_distance = 100
+@export var num_locations = 30
 @export var max_attempts_per_location = 50
 
 @onready var sample_label: Label = $SampleLabel
@@ -55,15 +55,16 @@ func _process(_delta: float) -> void:
 		sample_label.text = "..."
 
 func generate():
-	make_locations()
-	make_borders()
+	await make_locations()
+	name_locations()
+	await make_borders()
 
 # loosely based of https://editor.p5js.org/Cacarisse/sketches/vBSru9PBF
 # Poisson Scatter
 func make_locations():
 	for c in locations.get_children():
 		c.queue_free()
-
+	await get_tree().process_frame
 	var viewport_size = cam.get_viewport_rect().size
 	
 	for i in range(num_locations):
@@ -80,19 +81,30 @@ func make_locations():
 					break
 			
 			if ok:
-				var zone = Label.new()
-				zone.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				var emotion_index = randi() % emotions.size()
+				var location = Node2D.new()
 				
-				zone.text = places.pick_random() + " of " + emotions[emotion_index]
-				zone.name = zone.text
-				zone.modulate = emotion_colors[emotion_index]
-				zone.position = candidate_pos
-				
-				locations.add_child(zone)
+				location.name = "Location " + str(i)
+				location.position = candidate_pos
+				locations.add_child(location)
 				break
 
+func name_locations():
+	for location in locations.get_children():
+		var label = Label.new()
+		var emotion_index = randi() % emotions.size()
+		
+		location.name = places.pick_random() + " of " + emotions[emotion_index]
+		
+		label.set_anchors_preset(Control.PRESET_CENTER)
+		label.text = location.name
+		label.modulate = emotion_colors[emotion_index]
+		location.add_child(label)
+
 func make_borders():
+	for b in borders.get_children():
+		b.queue_free()
+	await get_tree().process_frame
+	
 	var viewport_size = cam.get_viewport_rect().size
 	var base_rect = Rect2(-viewport_size / 2, viewport_size)
 	
@@ -104,10 +116,9 @@ func make_borders():
 	])
 
 	for zone in locations.get_children():
-		if not zone is Label: continue
 		var current_cell_polys = [base_poly] 
 		for neighbor in locations.get_children():
-			if zone == neighbor or not neighbor is Label: continue
+			if zone == neighbor: continue
 			var p1 = zone.position
 			var p2 = neighbor.position
 			var diff = p2 - p1
@@ -139,8 +150,7 @@ func make_borders():
 			line.closed = true;
 			#line.default_color = zone.modulate
 			line.default_color.a = 0.5 
-			locations.add_child(line)
-			locations.move_child(line, 0)
+			borders.add_child(line)
 
 func get_closest_zone(point: Vector2) -> Label:
 	var min_dist_sq = INF
