@@ -33,11 +33,16 @@ const emotion_colors : Array[Color] = [
 @export var num_locations = 30
 @export var max_attempts_per_location = 50
 
+@export var distortion_subdivisions = 2
+@export var noise : FastNoiseLite = FastNoiseLite.new()
+
 @onready var sample_label: Label = $SampleLabel
 
 var tree_walked : Array[Label] = []
 
 func _ready() -> void:
+	noise = FastNoiseLite.new()
+	noise.frequency = 0.01
 	generate()
 	
 func _unhandled_input(_event: InputEvent) -> void:
@@ -55,9 +60,11 @@ func _process(_delta: float) -> void:
 		sample_label.text = "..."
 
 func generate():
+	noise.seed = randi()
 	await make_locations()
 	name_locations()
 	await make_borders()
+	distort_borders()
 
 # loosely based of https://editor.p5js.org/Cacarisse/sketches/vBSru9PBF
 # Poisson Scatter
@@ -138,8 +145,8 @@ func make_borders():
 			var final_points = current_cell_polys[0]
 			#final_points.append(final_points[0])
 			
-			var line = Line2D.new()
-			line.name = "Bounds"
+			var line : Line2D = Line2D.new()
+			line.name = "Border"
 			line.points = final_points
 			line.width = 4.0
 			line.default_color = Color.BLACK;
@@ -148,6 +155,49 @@ func make_borders():
 			line.default_color.a = 0.5 
 			zone.add_child(line)
 			line.global_position = Vector2.ZERO
+
+func distort_borders():
+	pass
+	# for each location, get its Line2D Border and subdivide it
+	for zone in locations.get_children():
+		var simple_border : Line2D = zone.get_node("Border")
+		
+		# Subdivide
+		var points = simple_border.points
+		for i in range(distortion_subdivisions):
+			var new_points = PackedVector2Array()
+			var n = points.size()
+			
+			for j in range(n):
+				var a = points[j]
+				var b = points[(j + 1) % n] # wrap next
+				var mid = (a + b) / 2.0
+				
+				new_points.append(a)
+				new_points.append(mid)
+			points = new_points
+		
+		# then offset the border by the sampled perlin noise at that location to perlin distort
+		var distorted_points = PackedVector2Array()
+		for i in range(points.size()):
+			var pos = points[i]
+			var angle = noise.get_noise_2d(pos.x,pos.y)
+			var offset = Vector2(cos(angle * 2 * PI), sin(angle * 2 * PI)) * 10
+			distorted_points.append(pos + offset)
+			#var normal = Vector2.ZERO # normal at that point
+		
+		points = distorted_points
+		
+		var line : Line2D = Line2D.new()
+		line.name = "SubdivBorder"
+		line.points = PackedVector2Array(points)
+		line.width = 4.0
+		line.default_color = Color.BLACK
+		line.closed = true
+		line.default_color.a = 0.5
+		zone.add_child(line)
+		line.global_position = Vector2.ZERO
+		simple_border.visible = false
 
 func get_closest_zone(point: Vector2) -> Label:
 	var min_dist_sq = INF
