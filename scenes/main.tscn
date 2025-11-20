@@ -13,8 +13,6 @@ texture = ExtResource("1_o5qli")
 
 [node name="Locations" type="Node2D" parent="."]
 
-[node name="Borders" type="Node2D" parent="."]
-
 [node name="SampleLabel" type="Label" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
@@ -29,3 +27,11 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "Sample Area"
 horizontal_alignment = 1
+
+[node name="MapBounds" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -552.0
+offset_top = -290.0
+offset_right = 545.0
+offset_bottom = 303.0

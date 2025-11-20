@@ -25,11 +25,11 @@ const emotion_colors : Array[Color] = [
 	Color.REBECCA_PURPLE
 ]
 @onready var locations: Node2D = $Locations
-@onready var borders: Node2D = $Borders
 @onready var cam: Camera2D = $Camera2D
+@onready var map_bounds: Control = $MapBounds
 
 @export var margin = 60
-@export var min_distance = 100
+@export var min_distance = 80
 @export var num_locations = 30
 @export var max_attempts_per_location = 50
 
@@ -65,14 +65,13 @@ func make_locations():
 	for c in locations.get_children():
 		c.queue_free()
 	await get_tree().process_frame
-	var viewport_size = cam.get_viewport_rect().size
 	
 	for i in range(num_locations):
 		for j in range(max_attempts_per_location):
 			var candidate_pos = Vector2(
-				randf_range(margin, viewport_size.x - margin),
-				randf_range(margin, viewport_size.y - margin)
-			) - viewport_size * 0.5
+				randf_range(margin, map_bounds.size.x - margin),
+				randf_range(margin, map_bounds.size.y - margin)
+			) + map_bounds.global_position
 			
 			var ok = true
 			for c in locations.get_children():
@@ -101,18 +100,14 @@ func name_locations():
 		location.add_child(label)
 
 func make_borders():
-	for b in borders.get_children():
-		b.queue_free()
 	await get_tree().process_frame
 	
-	var viewport_size = cam.get_viewport_rect().size
-	var base_rect = Rect2(-viewport_size / 2, viewport_size)
 	
 	var base_poly = PackedVector2Array([
-		base_rect.position,
-		Vector2(base_rect.end.x, base_rect.position.y),
-		base_rect.end,
-		Vector2(base_rect.position.x, base_rect.end.y)
+		map_bounds.position,
+		Vector2(map_bounds.position.x + map_bounds.size.x, map_bounds.position.y),
+		map_bounds.position + map_bounds.size,
+		Vector2(map_bounds.position.x, map_bounds.position.y + map_bounds.size.y)
 	])
 
 	for zone in locations.get_children():
@@ -150,7 +145,8 @@ func make_borders():
 			line.closed = true;
 			#line.default_color = zone.modulate
 			line.default_color.a = 0.5 
-			borders.add_child(line)
+			zone.add_child(line)
+			line.global_position = Vector2.ZERO
 
 func get_closest_zone(point: Vector2) -> Label:
 	var min_dist_sq = INF
