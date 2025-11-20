@@ -94,6 +94,7 @@ func name_locations():
 		
 		location.name = places.pick_random() + " of " + emotions[emotion_index]
 		
+		label.name = "Name"
 		label.set_anchors_preset(Control.PRESET_CENTER)
 		label.text = location.name
 		label.modulate = emotion_colors[emotion_index]
@@ -101,7 +102,6 @@ func name_locations():
 
 func make_borders():
 	await get_tree().process_frame
-	
 	
 	var base_poly = PackedVector2Array([
 		map_bounds.position,
@@ -139,6 +139,7 @@ func make_borders():
 			#final_points.append(final_points[0])
 			
 			var line = Line2D.new()
+			line.name = "Bounds"
 			line.points = final_points
 			line.width = 4.0
 			line.default_color = Color.BLACK;
