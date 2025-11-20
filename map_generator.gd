@@ -41,6 +41,7 @@ const emotion_colors : Array[Color] = [
 var tree_walked : Array[Label] = []
 
 func _ready() -> void:
+	randomize()
 	noise = FastNoiseLite.new()
 	noise.frequency = 0.01
 	generate()
@@ -55,7 +56,7 @@ func _process(_delta: float) -> void:
 	
 	var closest_zone = get_closest_zone(mouse_pos)
 	if closest_zone:
-		sample_label.text = closest_zone.text
+		sample_label.text = closest_zone.name
 	else:
 		sample_label.text = "..."
 
@@ -173,13 +174,13 @@ func discard_outer_locations():
 				is_outer = true
 				break
 		if is_outer:
-			zone.name = "Ocean"
-			zone.get_node("Name").text = "Ocean"
-			zone.get_node("Name").modulate = Color.AQUA
 			# zone.queue_free()
+			zone.name = "Ocean"
+			var label = zone.get_node("Name")
+			label.text = "Ocean"
+			label.modulate = Color.AQUA
 
 func distort_borders():
-	pass
 	# for each location, get its Line2D Border and subdivide it
 	for zone in locations.get_children():
 		var simple_border : Line2D = zone.get_node("Border")
@@ -210,6 +211,17 @@ func distort_borders():
 		
 		points = distorted_points
 		
+		var poly = Polygon2D.new()
+		poly.name = "Poly"
+		poly.polygon = points
+		
+		var zone_color = zone.get_node("Name").modulate
+		poly.color = zone_color
+		poly.color.a = 0.3
+		
+		zone.add_child(poly)
+		poly.global_position = Vector2.ZERO
+		
 		var line : Line2D = Line2D.new()
 		line.name = "SubdivBorder"
 		line.points = PackedVector2Array(points)
@@ -221,13 +233,11 @@ func distort_borders():
 		line.global_position = Vector2.ZERO
 		simple_border.visible = false
 
-func get_closest_zone(point: Vector2) -> Label:
+func get_closest_zone(point: Vector2) -> Node2D:
 	var min_dist_sq = INF
-	var closest_zone: Label = null
+	var closest_zone: Node2D = null
 	
 	for zone in locations.get_children():
-		if not zone is Label:
-			continue
 		var dist_sq = point.distance_squared_to(zone.position)
 		if dist_sq < min_dist_sq:
 			min_dist_sq = dist_sq
