@@ -64,6 +64,7 @@ func generate():
 	await make_locations()
 	name_locations()
 	await make_borders()
+	discard_outer_locations()
 	distort_borders()
 
 # loosely based of https://editor.p5js.org/Cacarisse/sketches/vBSru9PBF
@@ -155,6 +156,27 @@ func make_borders():
 			line.default_color.a = 0.5 
 			zone.add_child(line)
 			line.global_position = Vector2.ZERO
+
+func discard_outer_locations():
+	var threshold = 1.0 
+	var min_x = map_bounds.position.x
+	var min_y = map_bounds.position.y
+	var max_x = map_bounds.position.x + map_bounds.size.x
+	var max_y = map_bounds.position.y + map_bounds.size.y
+
+	for zone in locations.get_children():
+		var border_line : Line2D = zone.get_node("Border")
+			
+		var is_outer = false
+		for p in border_line.points:
+			if (abs(p.x - min_x) < threshold or abs(p.y - min_y) < threshold or abs(p.x - max_x) < threshold or abs(p.y - max_y) < threshold):
+				is_outer = true
+				break
+		if is_outer:
+			zone.name = "Ocean"
+			zone.get_node("Name").text = "Ocean"
+			zone.get_node("Name").modulate = Color.AQUA
+			# zone.queue_free()
 
 func distort_borders():
 	pass
