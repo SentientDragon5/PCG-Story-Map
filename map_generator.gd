@@ -65,8 +65,8 @@ func generate():
 	await make_locations()
 	name_locations()
 	await make_borders()
-	discard_outer_locations()
-	distort_borders()
+	#discard_outer_locations()
+	#distort_borders()
 
 # loosely based of https://editor.p5js.org/Cacarisse/sketches/vBSru9PBF
 # Poisson Scatter
@@ -143,9 +143,25 @@ func make_borders():
 			else:
 				break
 		
+		#var points = starConvexPoints(current_cell_polys[0])
+		var points = current_cell_polys[0]
+		current_cell_polys = Geometry2D.offset_polygon(points, 0.1)
+		
 		if not current_cell_polys.is_empty():
 			var final_points = current_cell_polys[0]
+			#final_points = starConvexPoints(final_points)
 			#final_points.append(final_points[0])
+			
+			var poly = Polygon2D.new()
+			poly.name = "Poly" + str(current_cell_polys.size())
+			poly.polygon = final_points
+			
+			var zone_color = zone.get_node("Name").modulate
+			poly.color = zone_color
+			poly.color.a = 0.3
+			
+			zone.add_child(poly)
+			poly.global_position = Vector2.ZERO
 			
 			var line : Line2D = Line2D.new()
 			line.name = "Border"
@@ -212,7 +228,7 @@ func distort_borders():
 		points = distorted_points
 		
 		var poly = Polygon2D.new()
-		poly.name = "Poly"
+		poly.name = "DistortPoly"
 		poly.polygon = points
 		
 		var zone_color = zone.get_node("Name").modulate
@@ -223,7 +239,7 @@ func distort_borders():
 		poly.global_position = Vector2.ZERO
 		
 		var line : Line2D = Line2D.new()
-		line.name = "SubdivBorder"
+		line.name = "DistortBorder"
 		line.points = PackedVector2Array(points)
 		line.width = 4.0
 		line.default_color = Color.BLACK
@@ -231,7 +247,20 @@ func distort_borders():
 		line.default_color.a = 0.5
 		zone.add_child(line)
 		line.global_position = Vector2.ZERO
+		
+		zone.get_node("Poly").visible = false
 		simple_border.visible = false
+
+func starConvexPoints(points : Array) -> Array:
+	var center = Vector2.ZERO
+	for p in points:
+		center += p
+	center /= points.size()
+	
+	points.sort_custom(func(a, b):
+		return (a - center).angle() < (b - center).angle()
+	)
+	return points
 
 func get_closest_zone(point: Vector2) -> Node2D:
 	var min_dist_sq = INF

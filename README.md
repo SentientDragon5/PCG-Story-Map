@@ -11,6 +11,9 @@ This is a map generator using perlin displaced voronoi and weighted grammars to 
 - https://stevelosh.com/blog/2016/02/midpoint-displacement/
 - https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
 - https://gemini.google.com/share/3c7f76b0eb90
+- https://thingonitsown.blogspot.com/2018/10/island-generation.html
+- https://www.reddit.com/r/proceduralgeneration/comments/9ug6k1/anyone_know_of_a_good_approach_for_voronoi_edge/
+- 
 
 ## Credits
 - https://opengameart.org/content/large-parchment-texture
