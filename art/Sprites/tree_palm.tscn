@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://bxvqhrwq4345r"]
+
+[ext_resource type="Texture2D" uid="uid://bx4fddm4grpvp" path="res://art/mapicons.png" id="1_u7vuf"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tipki"]
+atlas = ExtResource("1_u7vuf")
+region = Rect2(114.51832, 611.1092, 158.6778, 148.09924)
+
+[node name="TreePalm" type="Sprite2D"]
+texture = SubResource("AtlasTexture_tipki")

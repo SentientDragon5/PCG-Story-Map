@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://dxoccrauhmwki"]
+
+[ext_resource type="Texture2D" uid="uid://bx4fddm4grpvp" path="res://art/mapicons.png" id="1_hn3fn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_choun"]
+atlas = ExtResource("1_hn3fn")
+region = Rect2(527.3196, 1051.9598, 94.160095, 86.23999)
+
+[node name="House" type="Sprite2D"]
+texture = SubResource("AtlasTexture_choun")

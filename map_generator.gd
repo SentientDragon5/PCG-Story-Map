@@ -28,8 +28,8 @@ const emotion_colors : Array[Color] = [
 @onready var cam: Camera2D = $Camera2D
 @onready var map_bounds: Control = $MapBounds
 
-@export var margin = 60
-@export var min_distance = 80
+@export var margin = 40
+@export var min_distance = 120
 @export var num_locations = 30
 @export var max_attempts_per_location = 50
 
@@ -65,8 +65,8 @@ func generate():
 	await make_locations()
 	name_locations()
 	await make_borders()
-	#discard_outer_locations()
-	#distort_borders()
+	discard_outer_locations()
+	distort_borders()
 
 # loosely based of https://editor.p5js.org/Cacarisse/sketches/vBSru9PBF
 # Poisson Scatter
@@ -153,7 +153,7 @@ func make_borders():
 			#final_points.append(final_points[0])
 			
 			var poly = Polygon2D.new()
-			poly.name = "Poly" + str(current_cell_polys.size())
+			poly.name = "Poly"# + str(current_cell_polys.size())
 			poly.polygon = final_points
 			
 			var zone_color = zone.get_node("Name").modulate
@@ -190,11 +190,11 @@ func discard_outer_locations():
 				is_outer = true
 				break
 		if is_outer:
-			# zone.queue_free()
-			zone.name = "Ocean"
-			var label = zone.get_node("Name")
-			label.text = "Ocean"
-			label.modulate = Color.AQUA
+			zone.queue_free()
+			#zone.name = "Ocean"
+			#var label = zone.get_node("Name")
+			#label.text = "Ocean"
+			#label.modulate = Color.AQUA
 
 func distort_borders():
 	# for each location, get its Line2D Border and subdivide it
@@ -237,6 +237,7 @@ func distort_borders():
 		
 		zone.add_child(poly)
 		poly.global_position = Vector2.ZERO
+		#poly.visible = false
 		
 		var line : Line2D = Line2D.new()
 		line.name = "DistortBorder"
@@ -248,7 +249,8 @@ func distort_borders():
 		zone.add_child(line)
 		line.global_position = Vector2.ZERO
 		
-		zone.get_node("Poly").visible = false
+		if zone.has_node("Poly"):
+			zone.get_node("Poly").visible = false
 		simple_border.visible = false
 
 func starConvexPoints(points : Array) -> Array:
