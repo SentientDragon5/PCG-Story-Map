@@ -17,6 +17,9 @@ const emotions : Array[String] = [
 	"Mystery"
 ]
 
+const LINE_PREFAB = preload("res://art/Sprites/line_2d.tscn")
+
+
 const emotion_colors : Array[Color] = [
 	Color.DARK_ORANGE,
 	Color.DARK_BLUE,
@@ -29,8 +32,8 @@ const emotion_colors : Array[Color] = [
 @onready var map_bounds: Control = $MapBounds
 
 @export var margin = 40
-@export var min_distance = 120
-@export var num_locations = 30
+@export var min_distance = 150
+@export var num_locations = 20
 @export var max_attempts_per_location = 50
 
 @export var distortion_subdivisions = 2
@@ -163,10 +166,10 @@ func make_borders():
 			zone.add_child(poly)
 			poly.global_position = Vector2.ZERO
 			
-			var line : Line2D = Line2D.new()
+			var line : Line2D = LINE_PREFAB.instantiate()
 			line.name = "Border"
 			line.points = final_points
-			line.width = 4.0
+			#line.width = 4.0
 			line.default_color = Color.BLACK;
 			line.closed = true;
 			#line.default_color = zone.modulate
@@ -237,12 +240,12 @@ func distort_borders():
 		
 		zone.add_child(poly)
 		poly.global_position = Vector2.ZERO
-		#poly.visible = false
+		poly.visible = false
 		
-		var line : Line2D = Line2D.new()
+		var line : Line2D = LINE_PREFAB.instantiate()
 		line.name = "DistortBorder"
 		line.points = PackedVector2Array(points)
-		line.width = 4.0
+		#line.width = 4.0
 		line.default_color = Color.BLACK
 		line.closed = true
 		line.default_color.a = 0.5
