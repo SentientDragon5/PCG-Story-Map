@@ -18,7 +18,7 @@ const emotions : Array[String] = [
 ]
 
 const LINE_PREFAB = preload("res://art/Sprites/line_2d.tscn")
-
+const AREA_LABEL_PREFAB = preload("res://art/Sprites/area_label.tscn")
 
 const emotion_colors : Array[Color] = [
 	Color.DARK_ORANGE,
@@ -32,7 +32,7 @@ const emotion_colors : Array[Color] = [
 @onready var map_bounds: Control = $MapBounds
 
 @export var margin = 40
-@export var min_distance = 150
+@export var min_distance = 120
 @export var num_locations = 20
 @export var max_attempts_per_location = 50
 
@@ -101,7 +101,7 @@ func make_locations():
 
 func name_locations():
 	for location in locations.get_children():
-		var label = Label.new()
+		var label = AREA_LABEL_PREFAB.instantiate()
 		var emotion_index = randi() % emotions.size()
 		
 		location.name = places.pick_random() + " of " + emotions[emotion_index]

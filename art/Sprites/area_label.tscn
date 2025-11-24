@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://btxwpoenfgply"]
+
+[ext_resource type="FontFile" uid="uid://cpe0hovqok3u4" path="res://art/fonts/BlackSamsGold-ej5e.ttf" id="1_4r2u0"]
+
+[sub_resource type="Theme" id="Theme_lunn1"]
+Label/fonts/font = ExtResource("1_4r2u0")
+
+[node name="AreaLabel" type="Label"]
+theme = SubResource("Theme_lunn1")
+text = "LabelText"
