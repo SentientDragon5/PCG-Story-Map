@@ -269,12 +269,21 @@ func create_zone_path():
 	if locations.has_node("GlobalPath"):
 		locations.get_node("GlobalPath").queue_free()
 
-	var zone_positions = PackedVector2Array()
+	var valid_zones : Array[Node2D] = []
 	for zone in locations.get_children():
-		if not zone.is_queued_for_deletion():
-			zone_positions.append(zone.position)
-	var path_points = find_path(zone_positions)
-
+		if not zone is Line2D and not zone.is_queued_for_deletion():
+			valid_zones.append(zone)
+	if valid_zones.is_empty():
+		return
+	var ordered_zones = find_path(valid_zones)
+	
+	for i in range(ordered_zones.size()):
+		locations.move_child(ordered_zones[i], i)
+	
+	var path_points = PackedVector2Array()
+	for zone in ordered_zones:
+		path_points.append(zone.position)
+	
 	var line : Line2D = LINE_PREFAB.instantiate()
 	line.name = "GlobalPath"
 	line.points = path_points
@@ -361,33 +370,39 @@ func get_random_points_in_polygon(polygon: PackedVector2Array, num_points : int 
 				break
 	return points
 
-func find_path(points: PackedVector2Array) -> PackedVector2Array:
-	if points.size() < 2:
-		return points
-	var unvisited = Array(points)
-	var path = PackedVector2Array()
+func find_path(nodes: Array[Node2D]) -> Array[Node2D]:
+	if nodes.size() < 2:
+		return nodes
+		
+	var unvisited = nodes.duplicate()
+	var ordered_nodes : Array[Node2D] = []
+	
 	var start_index = 0
 	var min_score = INF
 	
 	for i in range(unvisited.size()):
-		var p = unvisited[i]
+		var p = unvisited[i].position
 		var score = p.x + p.y 
 		if score < min_score:
 			min_score = score
 			start_index = i
-	var current_pos = unvisited.pop_at(start_index)
-	path.append(current_pos)
+			
+	var current_node = unvisited.pop_at(start_index)
+	ordered_nodes.append(current_node)
 	
 	while not unvisited.is_empty():
 		var closest_dist_sq = INF
 		var closest_index = -1
 		
 		for i in range(unvisited.size()):
-			var d = current_pos.distance_squared_to(unvisited[i])
+			var d = current_node.position.distance_squared_to(unvisited[i].position)
 			if d < closest_dist_sq:
 				closest_dist_sq = d
 				closest_index = i
-		current_pos = unvisited.pop_at(closest_index)
-		path.append(current_pos)
-	return path
+		
+		current_node = unvisited.pop_at(closest_index)
+		ordered_nodes.append(current_node)
+		
+	return ordered_nodes
+	
 #endregion
