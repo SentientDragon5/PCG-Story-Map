@@ -67,9 +67,11 @@ func _process(_delta: float) -> void:
 
 func lod_update(zoomIndex : int):
 	for zone in locations.get_children():
+		if zone is Line2D:
 			zone.visible = zoomIndex < 4
 		elif zone is Node2D:
 			zone.get_node("Name").visible = zoomIndex < 4
+			zone.get_node("POIs").visible = zoomIndex >= 4
 
 func generate():
 	noise.seed = randi()
@@ -292,12 +294,76 @@ func create_zone_path():
 	locations.add_child(line)
 
 func add_poi():
-	# adds random points
-	# generates poi path
-	# uses story to decide point types
-	pass
+	var previous_end_point : Vector2 = Vector2.ZERO
+	
+	var zones : Array[Node2D] = []
+	for child in locations.get_children():
+		if not child is Line2D and not child.is_queued_for_deletion():
+			zones.append(child)
+
+	for i in range(zones.size()):
+		var zone = zones[i]
+		var next_zone = zones[i+1] if i < zones.size() - 1 else null
+		
+		var poly_points : PackedVector2Array
+		if zone.has_node("DistortPoly"):
+			poly_points = zone.get_node("DistortPoly").polygon
+		elif zone.has_node("Poly"):
+			poly_points = zone.get_node("Poly").polygon
+		else:
+			continue
+		
+		var num_poi = 10
+		var points_in_zone = get_random_points_in_polygon(poly_points, num_poi)
+		
+		var start_point : Vector2
+		if i == 0:
+			start_point = points_in_zone[0]
+			points_in_zone.remove_at(0)
+		else:
+			start_point = previous_end_point
+
+		var end_point : Vector2
+		if next_zone:
+			end_point = find_best_end_point(points_in_zone, next_zone)
+			points_in_zone.remove_at(points_in_zone.find(end_point))
+		else:
+			end_point = points_in_zone[points_in_zone.size() - 1]
+			points_in_zone.remove_at(points_in_zone.size() - 1)
+		
+		previous_end_point = end_point
+		var path_points = find_path_between(start_point, end_point, points_in_zone)
+		
+		var poi_container = Node2D.new()
+		poi_container.name = "POIs"
+		zone.add_child(poi_container)
+		
+		for pos in path_points:
+			var node = Node2D.new()
+			node.position = pos - zone.position
+			node.name = "POI"
+			
+			var vis = add_poi_icon()
+			var s = 0.15
+			vis.scale = Vector2(s, s)
+			node.add_child(vis)
+			poi_container.add_child(node)
+			
+		var line : Line2D = LINE_PREFAB.instantiate()
+		line.name = "POI Path"
+		var local_points = PackedVector2Array()
+		for p in path_points:
+			local_points.append(p - zone.position)
+		line.points = local_points
+		line.width = 2.0
+		line.default_color = Color.DIM_GRAY
+		poi_container.add_child(line)
 
 #region Helper Functions
+func add_poi_icon(icon : String = "tower") -> Node2D:
+	var tscn : PackedScene= load("res://art/Sprites/" + icon + ".tscn")
+	return tscn.instantiate()
+
 func starConvexPoints(points : Array) -> Array:
 	var center = Vector2.ZERO
 	for p in points:
@@ -348,7 +414,7 @@ func get_poly_bounding_box(points: PackedVector2Array) -> Rect2:
 		max_y = max(max_y, p.y)
 	return Rect2(min_x, min_y, max_x - min_x, max_y - min_y)
 
-func get_random_points_in_polygon(polygon: PackedVector2Array, num_points : int = 10):
+func get_random_points_in_polygon(polygon: PackedVector2Array, num_points : int = 10) -> PackedVector2Array:
 	var bounds = get_poly_bounding_box(polygon)
 	var max_attempts = 100
 	var points = []
@@ -369,7 +435,7 @@ func get_random_points_in_polygon(polygon: PackedVector2Array, num_points : int 
 			points.append(rand_point)
 			if points.size() >= num_points:
 				break
-	return points
+	return PackedVector2Array(points)
 
 func find_path(nodes: Array[Node2D]) -> Array[Node2D]:
 	if nodes.size() < 2:
@@ -403,7 +469,50 @@ func find_path(nodes: Array[Node2D]) -> Array[Node2D]:
 		
 		current_node = unvisited.pop_at(closest_index)
 		ordered_nodes.append(current_node)
-		
+	
+	# will probably need validation to ensure no crisscrossing
 	return ordered_nodes
 	
+func find_path_between(start: Vector2, end: Vector2, points: PackedVector2Array) -> PackedVector2Array:
+	var path = PackedVector2Array()
+	path.append(start)
+	
+	var unvisited = points.duplicate()
+	var current_pos = start
+	
+	while not unvisited.is_empty():
+		var closest_dist_sq = INF
+		var closest_index = -1
+		
+		for i in range(unvisited.size()):
+			var d = current_pos.distance_squared_to(unvisited[i])
+			if d < closest_dist_sq:
+				closest_dist_sq = d
+				closest_index = i
+		current_pos = unvisited[closest_index]
+		path.append(current_pos)
+		unvisited.remove_at(closest_index)
+	path.append(end)
+	return path
+
+func find_best_end_point(candidates: PackedVector2Array, next_zone: Node2D) -> Vector2:
+	var border_line : Line2D = next_zone.get_node_or_null("DistortBorder")
+	if not border_line:
+		border_line = next_zone.get_node_or_null("Border")
+	if not border_line or candidates.is_empty():
+		return candidates[candidates.size() - 1]
+		
+	var border_points = border_line.points
+	
+	var best_p = candidates[0]
+	var min_dist = INF
+	
+	for p in candidates:
+		for bp in border_points:
+			var global_bp = bp + next_zone.position
+			var d = p.distance_squared_to(global_bp)
+			if d < min_dist:
+				min_dist = d
+				best_p = p
+	return best_p
 #endregion
