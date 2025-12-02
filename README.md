@@ -14,6 +14,7 @@ This is a map generator using perlin displaced voronoi and weighted grammars to 
 - https://thingonitsown.blogspot.com/2018/10/island-generation.html
 - https://www.reddit.com/r/proceduralgeneration/comments/9ug6k1/anyone_know_of_a_good_approach_for_voronoi_edge/
 - https://en.wikipedia.org/wiki/Shoelace_formula
+- https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm
 
 ## Credits
 - https://opengameart.org/content/large-parchment-texture

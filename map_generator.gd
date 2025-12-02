@@ -28,6 +28,7 @@ const emotion_colors : Array[Color] = [
 	Color.REBECCA_PURPLE
 ]
 @onready var locations: Node2D = $Locations
+@onready var cam : CamController = $Camera2D
 @onready var map_bounds: Control = $MapBounds
 
 @export var margin = 40
@@ -41,8 +42,6 @@ const emotion_colors : Array[Color] = [
 @onready var sample_label: Label = $SampleLabel
 
 var tree_walked : Array[Label] = []
-
-@onready var cam : CamController = $Camera2D
 
 
 func _ready() -> void:
@@ -264,6 +263,16 @@ func distort_borders():
 			zone.get_node("Poly").visible = false
 		simple_border.visible = false
 
+func create_zone_path():
+	# creates path between zones for overarching path
+	pass
+
+func add_poi():
+	# adds random points
+	# generates poi path
+	# uses story to decide point types
+	pass
+
 #region Helper Functions
 func starConvexPoints(points : Array) -> Array:
 	var center = Vector2.ZERO
@@ -338,4 +347,33 @@ func get_random_points_in_polygon(polygon: PackedVector2Array, num_points : int 
 				break
 	return points
 
+func find_path(points: PackedVector2Array) -> PackedVector2Array:
+	if points.size() < 2:
+		return points
+	var unvisited = Array(points)
+	var path = PackedVector2Array()
+	var start_index = 0
+	var min_score = INF
+	
+	for i in range(unvisited.size()):
+		var p = unvisited[i]
+		var score = p.x + p.y 
+		if score < min_score:
+			min_score = score
+			start_index = i
+	var current_pos = unvisited.pop_at(start_index)
+	path.append(current_pos)
+	
+	while not unvisited.is_empty():
+		var closest_dist_sq = INF
+		var closest_index = -1
+		
+		for i in range(unvisited.size()):
+			var d = current_pos.distance_squared_to(unvisited[i])
+			if d < closest_dist_sq:
+				closest_dist_sq = d
+				closest_index = i
+		current_pos = unvisited.pop_at(closest_index)
+		path.append(current_pos)
+	return path
 #endregion
