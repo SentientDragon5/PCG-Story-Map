@@ -44,6 +44,18 @@ var colors = [
 	"dark",
 	"antiquitus"
 ]
+var color_map = {
+	"verdant": Color.FOREST_GREEN,
+	"lustrous": Color.GOLD,
+	"prismatic": Color.AZURE,
+	"pale": Color.LIGHT_GRAY,
+	"sanguine": Color.DARK_RED,
+	"verdigris": Color.TEAL,
+	"sapphire": Color.ROYAL_BLUE,
+	"ruby": Color.CRIMSON,
+	"dark": Color.DARK_SLATE_GRAY,
+	"antiquitus": Color.BURLYWOOD
+}
 var current_colors
 
 var story = []
@@ -51,7 +63,6 @@ var story = []
 @export var min_story_blocks = 4
 @export var max_story_blocks = 6
 
-@export var areas_count = 4
 var areas
 
 var id = 0
@@ -63,7 +74,7 @@ var id = 0
 	#if Input.is_action_just_pressed("regenerate"):
 		#generate()
 	
-func generate():
+func generate(areas_count: int):
 	# reset
 	story.clear()
 	for c in $VBoxContainer.get_children():
@@ -81,7 +92,8 @@ func generate():
 		current_colors.erase(color)
 		var biome = current_biomes.pick_random()
 		current_biomes.erase(biome)
-		area["name"] = "area " + str(i) + " " + color + " " + biome
+		# Were nil ^
+		area["name"] = "area " + str(i)# + " " + color + " " + biome
 		area["story"] = get_area_story()
 		story.append(area)
 	story.append("end")

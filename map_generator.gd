@@ -1,21 +1,5 @@
 extends Node2D
-
-# update to be weighted
-const places : Array[String] = [
-	"Forest",
-	"Field",
-	"Lake",
-	"Desert",
-	"Village"
-]
-
-const emotions : Array[String] = [
-	"Joy",
-	"Sadness",
-	"Terror",
-	"Indifference",
-	"Mystery"
-]
+class_name MapGen
 
 const LINE_PREFAB = preload("res://art/Sprites/line_2d.tscn")
 const AREA_LABEL_PREFAB = preload("res://art/Sprites/area_label.tscn")
@@ -78,13 +62,13 @@ func update_ui():
 func generate():
 	noise.seed = randi()
 	await make_locations()
-	story.generate()
-	name_locations()
 	await make_borders()
 	discard_outer_locations()
 	distort_borders()
 	create_zone_path()
 	add_poi()
+	story.generate(locations.get_children().size()-1)
+	name_locations()
 	await get_tree().process_frame
 	update_ui()
 
@@ -119,14 +103,14 @@ func make_locations():
 func name_locations():
 	for location in locations.get_children():
 		var label = AREA_LABEL_PREFAB.instantiate()
-		var emotion_index = randi() % emotions.size()
-		
-		location.name = places.pick_random() + " of " + emotions[emotion_index]
+		#var emotion_index = randi() % emotions.size()
+		#
+		#location.name = places.pick_random() + " of " + emotions[emotion_index]
 		
 		label.name = "Name"
 		label.set_anchors_preset(Control.PRESET_CENTER)
 		label.text = location.name
-		label.modulate = emotion_colors[emotion_index]
+		#label.modulate = emotion_colors[emotion_index]
 		location.add_child(label)
 
 func make_borders():
@@ -176,9 +160,9 @@ func make_borders():
 			poly.name = "Poly"# + str(current_cell_polys.size())
 			poly.polygon = final_points
 			
-			var zone_color = zone.get_node("Name").modulate
-			poly.color = zone_color
-			poly.color.a = 0.3
+			#var zone_color = zone.get_node("Name").modulate
+			#poly.color = zone_color
+			#poly.color.a = 0.3
 			
 			zone.add_child(poly)
 			poly.global_position = Vector2.ZERO
@@ -251,9 +235,9 @@ func distort_borders():
 		poly.name = "DistortPoly"
 		poly.polygon = points
 		
-		var zone_color = zone.get_node("Name").modulate
-		poly.color = zone_color
-		poly.color.a = 0.3
+		#var zone_color = zone.get_node("Name").modulate
+		#poly.color = zone_color
+		#poly.color.a = 0.3
 		
 		zone.add_child(poly)
 		poly.global_position = Vector2.ZERO
