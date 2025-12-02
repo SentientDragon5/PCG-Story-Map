@@ -1,15 +1,24 @@
-[gd_scene load_steps=4 format=3 uid="uid://d1qt6lefr66sf"]
+[gd_scene load_steps=6 format=3 uid="uid://d1qt6lefr66sf"]
 
 [ext_resource type="Script" uid="uid://ti3gtjec8twv" path="res://map_generator.gd" id="1_0wfyh"]
 [ext_resource type="Texture2D" uid="uid://cie0qdc1i4se6" path="res://art/parchment.png" id="1_o5qli"]
 [ext_resource type="Script" uid="uid://dy6f25e30nkdo" path="res://cam_controller.gd" id="3_sugp2"]
+[ext_resource type="FontFile" uid="uid://b50dyjdtl1ig0" path="res://art/fonts/TabulaPeutingeriana-ELv9.ttf" id="4_jyhfs"]
+
+[sub_resource type="Theme" id="Theme_tbgi4"]
+default_font = ExtResource("4_jyhfs")
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_0wfyh")
 
-[node name="Parchment" type="Sprite2D" parent="."]
-modulate = Color(0.5529412, 0.5529412, 0.5529412, 0.3764706)
+[node name="ParchmentBG" type="TextureRect" parent="."]
+offset_left = -2850.0
+offset_top = -1534.0
+offset_right = 3073.0
+offset_bottom = 1815.0
+scale = Vector2(2, 2)
 texture = ExtResource("1_o5qli")
+stretch_mode = 1
 
 [node name="Camera2D" type="Camera2D" parent="."]
 script = ExtResource("3_sugp2")
@@ -39,3 +48,21 @@ offset_left = -552.0
 offset_top = -290.0
 offset_right = 545.0
 offset_bottom = 303.0
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Controls" type="Label" parent="CanvasLayer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -318.5
+offset_top = -43.0
+offset_right = 318.5
+grow_horizontal = 2
+grow_vertical = 0
+theme = SubResource("Theme_tbgi4")
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "WASD to move camera, E and Q to zoom in and out"
+horizontal_alignment = 1

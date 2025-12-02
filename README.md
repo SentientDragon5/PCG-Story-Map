@@ -16,4 +16,5 @@ This is a map generator using perlin displaced voronoi and weighted grammars to 
 
 ## Credits
 - https://opengameart.org/content/large-parchment-texture
-- https://www.fontspace.com/black-sams-gold-font-f8784, licensed under Creative Commons (by-nd) Attribution No Derivatives
+- https://www.fontspace.com/tabula-peutingeriana-font-f28431, Tabula Peutingeriana Font, in the Public Domain
+- textures drawn by me

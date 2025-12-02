@@ -28,7 +28,6 @@ const emotion_colors : Array[Color] = [
 	Color.REBECCA_PURPLE
 ]
 @onready var locations: Node2D = $Locations
-@onready var cam: Camera2D = $Camera2D
 @onready var map_bounds: Control = $MapBounds
 
 @export var margin = 40
@@ -43,11 +42,15 @@ const emotion_colors : Array[Color] = [
 
 var tree_walked : Array[Label] = []
 
+@onready var cam : CamController = $Camera2D
+
+
 func _ready() -> void:
 	randomize()
 	noise = FastNoiseLite.new()
 	noise.frequency = 0.01
 	generate()
+	cam.onZoom.connect(lod_update)
 	
 func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("regenerate"):
@@ -62,6 +65,11 @@ func _process(_delta: float) -> void:
 		sample_label.text = closest_zone.name
 	else:
 		sample_label.text = "..."
+
+func lod_update(zoomIndex : int):
+	for zone in locations.get_children():
+		zone.get_node("Name").visible = zoomIndex < 4
+	pass
 
 func generate():
 	noise.seed = randi()
