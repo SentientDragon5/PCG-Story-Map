@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://d1qt6lefr66sf"]
+[gd_scene load_steps=7 format=3 uid="uid://d1qt6lefr66sf"]
 
 [ext_resource type="Script" uid="uid://ti3gtjec8twv" path="res://map_generator.gd" id="1_0wfyh"]
 [ext_resource type="Texture2D" uid="uid://cie0qdc1i4se6" path="res://art/parchment.png" id="1_o5qli"]
 [ext_resource type="Script" uid="uid://dy6f25e30nkdo" path="res://cam_controller.gd" id="3_sugp2"]
 [ext_resource type="FontFile" uid="uid://b50dyjdtl1ig0" path="res://art/fonts/TabulaPeutingeriana-ELv9.ttf" id="4_jyhfs"]
+[ext_resource type="PackedScene" uid="uid://cimrdmdy834c3" path="res://scenes/story.tscn" id="5_tbgi4"]
 
 [sub_resource type="Theme" id="Theme_tbgi4"]
 default_font = ExtResource("4_jyhfs")
@@ -77,9 +78,9 @@ layout_mode = 2
 
 [node name="ShowPaths" type="CheckBox" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
 layout_mode = 2
-text = "Show Paths"
+text = "Hide Paths"
 
-[node name="Button" type="Button" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
+[node name="RegenerateButton" type="Button" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
 layout_mode = 2
 text = "Regenerate"
 
@@ -88,23 +89,32 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="CanvasLayer/FoldableContainer/VBoxContainer/AreasContainer"]
 layout_mode = 2
-text = "Areas"
+text = "Areas (includes margins)"
 
 [node name="AreasSpinBox" type="SpinBox" parent="CanvasLayer/FoldableContainer/VBoxContainer/AreasContainer"]
 layout_mode = 2
-min_value = 5.0
-value = 10.0
+min_value = 10.0
+value = 20.0
 rounded = true
+custom_arrow_step = 5.0
 
 [node name="POIContainer" type="HBoxContainer" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
 layout_mode = 2
 
 [node name="Label" type="Label" parent="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer"]
 layout_mode = 2
-text = "Areas"
+text = "Points of Interest per Area"
 
 [node name="POISpinBox" type="SpinBox" parent="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer"]
 layout_mode = 2
 min_value = 5.0
 value = 10.0
 rounded = true
+
+[node name="Story" parent="." instance=ExtResource("5_tbgi4")]
+position = Vector2(659, -255)
+
+[connection signal="toggled" from="CanvasLayer/FoldableContainer/VBoxContainer/ShowPaths" to="." method="_on_show_paths_toggled"]
+[connection signal="pressed" from="CanvasLayer/FoldableContainer/VBoxContainer/RegenerateButton" to="." method="_on_regenerate_button_pressed"]
+[connection signal="value_changed" from="CanvasLayer/FoldableContainer/VBoxContainer/AreasContainer/AreasSpinBox" to="." method="_on_areas_spin_box_value_changed"]
+[connection signal="value_changed" from="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer/POISpinBox" to="." method="_on_poi_spin_box_value_changed"]

@@ -41,8 +41,8 @@ const emotion_colors : Array[Color] = [
 
 @onready var sample_label: Label = $SampleLabel
 
-var tree_walked : Array[Label] = []
-
+@export var lod = 2
+@export var show_paths = true
 
 func _ready() -> void:
 	randomize()
@@ -65,13 +65,14 @@ func _process(_delta: float) -> void:
 	else:
 		sample_label.text = "..."
 
-func lod_update(zoomIndex : int):
+func update_ui():
 	for zone in locations.get_children():
 		if zone is Line2D:
-			zone.visible = zoomIndex < 4
+			zone.visible = lod < 4 and show_paths
 		elif zone is Node2D:
-			zone.get_node("Name").visible = zoomIndex < 4
-			zone.get_node("POIs").visible = zoomIndex >= 4
+			zone.get_node("Name").visible = lod < 4
+			zone.get_node("POIs").visible = lod >= 4
+			zone.get_node("POIs").get_node("POI Path").visible = show_paths
 
 func generate():
 	noise.seed = randi()
@@ -82,6 +83,8 @@ func generate():
 	distort_borders()
 	create_zone_path()
 	add_poi()
+	await get_tree().process_frame
+	update_ui()
 
 # loosely based of https://editor.p5js.org/Cacarisse/sketches/vBSru9PBF
 # Poisson Scatter
@@ -339,14 +342,10 @@ func add_poi():
 		zone.add_child(poi_container)
 		
 		for pos in path_points:
-			var node = Node2D.new()
+			var node = add_poi_icon()
 			node.position = pos - zone.position
-			node.name = "POI"
-			
-			var vis = add_poi_icon()
 			var s = 0.15
-			vis.scale = Vector2(s, s)
-			node.add_child(vis)
+			node.scale = Vector2(s, s)
 			poi_container.add_child(node)
 			
 		var line : Line2D = LINE_PREFAB.instantiate()
@@ -515,4 +514,24 @@ func find_best_end_point(candidates: PackedVector2Array, next_zone: Node2D) -> V
 				min_dist = d
 				best_p = p
 	return best_p
+#endregion
+
+#region ui callbacks
+func _on_poi_spin_box_value_changed(value: float) -> void:
+	update_ui()
+
+func _on_areas_spin_box_value_changed(value: float) -> void:
+	num_locations = value
+	update_ui()
+
+func _on_regenerate_button_pressed() -> void:
+	generate()
+
+func _on_show_paths_toggled(toggled_on: bool) -> void:
+	show_paths = not toggled_on
+	update_ui()
+	
+func lod_update(zoomIndex : int):
+	lod = zoomIndex
+	update_ui()
 #endregion
