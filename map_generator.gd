@@ -49,8 +49,8 @@ func _ready() -> void:
 	randomize()
 	noise = FastNoiseLite.new()
 	noise.frequency = 0.01
-	generate()
 	cam.onZoom.connect(lod_update)
+	generate()
 	
 func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("regenerate"):
@@ -69,7 +69,7 @@ func _process(_delta: float) -> void:
 func lod_update(zoomIndex : int):
 	for zone in locations.get_children():
 		zone.get_node("Name").visible = zoomIndex < 4
-	pass
+		# show the path and points if important
 
 func generate():
 	noise.seed = randi()
@@ -264,6 +264,7 @@ func distort_borders():
 			zone.get_node("Poly").visible = false
 		simple_border.visible = false
 
+#region Helper Functions
 func starConvexPoints(points : Array) -> Array:
 	var center = Vector2.ZERO
 	for p in points:
@@ -285,3 +286,56 @@ func get_closest_zone(point: Vector2) -> Node2D:
 			min_dist_sq = dist_sq
 			closest_zone = zone
 	return closest_zone
+
+func get_polygon_area(points: PackedVector2Array) -> float:
+	var area = 0.0
+	var num_points = points.size()
+	if num_points < 3:
+		return 0.0
+		
+	for i in range(num_points):
+		var p1 = points[i]
+		var p2 = points[(i + 1) % num_points]
+		area += (p1.x * p2.y) - (p2.x * p1.y)
+	return abs(area) / 2.0
+
+func get_poly_bounding_box(points: PackedVector2Array) -> Rect2:
+	if points.is_empty():
+		return Rect2()
+
+	var min_x = INF
+	var max_x = -INF
+	var min_y = INF
+	var max_y = -INF
+	
+	for p in points:
+		min_x = min(min_x, p.x)
+		max_x = max(max_x, p.x)
+		min_y = min(min_y, p.y)
+		max_y = max(max_y, p.y)
+	return Rect2(min_x, min_y, max_x - min_x, max_y - min_y)
+
+func get_random_points_in_polygon(polygon: PackedVector2Array, num_points : int = 10):
+	var bounds = get_poly_bounding_box(polygon)
+	var max_attempts = 100
+	var points = []
+	for i in range(max_attempts):
+		var rand_point = Vector2(
+			randf_range(bounds.position.x, bounds.end.x),
+			randf_range(bounds.position.y, bounds.end.y)
+		)
+		if Geometry2D.is_point_in_polygon(rand_point, polygon):
+			var too_close = false
+			var min_dist = 10
+			for p :Vector2 in points:
+				if rand_point.distance_to(p) < min_dist:
+					too_close = true
+					break
+			if too_close:
+				continue
+			points.append(rand_point)
+			if points.size() >= num_points:
+				break
+	return points
+
+#endregion

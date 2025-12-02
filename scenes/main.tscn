@@ -64,5 +64,5 @@ grow_horizontal = 2
 grow_vertical = 0
 theme = SubResource("Theme_tbgi4")
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "WASD to move camera, E and Q to zoom in and out"
+text = "WASD to move camera, E and Q to zoom in and out, R to re-generate"
 horizontal_alignment = 1
