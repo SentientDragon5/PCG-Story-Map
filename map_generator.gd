@@ -67,8 +67,9 @@ func _process(_delta: float) -> void:
 
 func lod_update(zoomIndex : int):
 	for zone in locations.get_children():
-		zone.get_node("Name").visible = zoomIndex < 4
-		# show the path and points if important
+		if zone is not Line2D:
+			zone.get_node("Name").visible = zoomIndex < 4
+			# show the path and points if important
 
 func generate():
 	noise.seed = randi()
@@ -77,6 +78,7 @@ func generate():
 	await make_borders()
 	discard_outer_locations()
 	distort_borders()
+	create_zone_path()
 
 # loosely based of https://editor.p5js.org/Cacarisse/sketches/vBSru9PBF
 # Poisson Scatter
@@ -264,8 +266,20 @@ func distort_borders():
 		simple_border.visible = false
 
 func create_zone_path():
-	# creates path between zones for overarching path
-	pass
+	if locations.has_node("GlobalPath"):
+		locations.get_node("GlobalPath").queue_free()
+
+	var zone_positions = PackedVector2Array()
+	for zone in locations.get_children():
+		if not zone.is_queued_for_deletion():
+			zone_positions.append(zone.position)
+	var path_points = find_path(zone_positions)
+
+	var line : Line2D = LINE_PREFAB.instantiate()
+	line.name = "GlobalPath"
+	line.points = path_points
+	line.default_color = Color.DIM_GRAY
+	locations.add_child(line)
 
 func add_poi():
 	# adds random points
