@@ -81,22 +81,23 @@ func generate(areas_count: int):
 		c.queue_free()
 	current_colors = colors.duplicate()
 	current_biomes = biomes.duplicate()
+	print(current_biomes)
 	id = 0
 	
 	# start
-	story.append("start")
 	for i in range(areas_count):
 		# add area
 		var area = {}
 		var color = current_colors.pick_random()
 		current_colors.erase(color)
 		var biome = current_biomes.pick_random()
-		current_biomes.erase(biome)
+		#current_biomes.erase(biome)
 		# Were nil ^
-		area["name"] = "area " + str(i)# + " " + color + " " + biome
+		#  "area " + str(i) + " " + 
+		area["name"] = color + " " + biome
+		area["color"] = color_map[color]
 		area["story"] = get_area_story()
 		story.append(area)
-	story.append("end")
 	
 	print(story)
 	

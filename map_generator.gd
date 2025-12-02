@@ -50,6 +50,14 @@ func _process(_delta: float) -> void:
 	else:
 		sample_label.text = "..."
 
+var valid_zones:
+	get:
+		var v = []
+		for n in locations.get_children():
+			if not n is Line2D and not n.is_queued_for_deletion():
+				v.append(n)
+		return v
+
 func update_ui():
 	for zone in locations.get_children():
 		if zone is Line2D:
@@ -67,7 +75,8 @@ func generate():
 	distort_borders()
 	create_zone_path()
 	add_poi()
-	story.generate(locations.get_children().size()-1)
+	
+	story.generate(valid_zones.size())
 	name_locations()
 	await get_tree().process_frame
 	update_ui()
@@ -101,17 +110,19 @@ func make_locations():
 				break
 
 func name_locations():
-	for location in locations.get_children():
+	var index = 0
+	for location in valid_zones:
 		var label = AREA_LABEL_PREFAB.instantiate()
 		#var emotion_index = randi() % emotions.size()
 		#
 		#location.name = places.pick_random() + " of " + emotions[emotion_index]
-		
+		location.name = story.story[index].name
 		label.name = "Name"
 		label.set_anchors_preset(Control.PRESET_CENTER)
 		label.text = location.name
-		#label.modulate = emotion_colors[emotion_index]
+		label.modulate = story.story[index].color
 		location.add_child(label)
+		index+=1
 
 func make_borders():
 	await get_tree().process_frame
