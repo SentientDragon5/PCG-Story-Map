@@ -30,6 +30,7 @@ const emotion_colors : Array[Color] = [
 @onready var locations: Node2D = $Locations
 @onready var cam : CamController = $Camera2D
 @onready var map_bounds: Control = $MapBounds
+@onready var story: Story = $Story
 
 @export var margin = 40
 @export var min_distance = 120
@@ -77,6 +78,7 @@ func update_ui():
 func generate():
 	noise.seed = randi()
 	await make_locations()
+	story.generate()
 	name_locations()
 	await make_borders()
 	discard_outer_locations()

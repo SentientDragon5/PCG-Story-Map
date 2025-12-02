@@ -1,4 +1,5 @@
 extends Node2D
+class_name Story
 
 var elements = [
 	"obstacle",
@@ -8,17 +9,17 @@ var elements = [
 ]
 
 var element_types = [
-	["lock", "combat", "puzzle", "parkour"],
-	["tool", "ability", "lore", "collectable", "key"],
-	["landmark", "village", "home"],
-	["key", "escort", "fetch"]
+	["lock",0.25], ["combat",0.25], ["puzzle",0.25], ["parkour",0.25],
+	["chest", 1.0], ["key",0.0], ["item",0.0],
+	["landmark",0.8], ["village",0.2],
+	["escort",0.5], ["fetch",0.5]
 ]
 
 var add_constraints = {
-	"reward" : "obstacle",
-	"lock" : "key",
-	"fetch" : "collectable",
-	"escort" : "combat"
+	"reward" : ["combat", "puzzle", "parkour"],
+	"lock" : ["key"],
+	"fetch" : ["item"],
+	"escort" : ["combat"]
 }
 
 var biomes = [
@@ -47,26 +48,20 @@ var current_colors
 
 var story = []
 
-@export var min_story_blocks = 5
-@export var max_story_blocks = 10
+@export var min_story_blocks = 4
+@export var max_story_blocks = 6
 
-@export var min_areas = 2
-@export var max_areas = 5
-
-var areas_count
+@export var areas_count = 4
 var areas
 
 var id = 0
 
-func get_obstacle():
-	return "obstacle"
-	
-func _ready() -> void:
-	generate()
-	
-func _unhandled_input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("regenerate"):
-		generate()
+#func _ready() -> void:
+	#generate()
+	#
+#func _unhandled_input(_event: InputEvent) -> void:
+	#if Input.is_action_just_pressed("regenerate"):
+		#generate()
 	
 func generate():
 	# reset
@@ -79,19 +74,15 @@ func generate():
 	
 	# start
 	story.append("start")
-	areas_count = randi_range(min_areas, max_areas)
 	for i in range(areas_count):
+		# add area
 		var area = {}
-		if i == 0:
-			area["name"] = "tutorial"
-			area["story"] = ["obstacle"]
-		else:
-			var color = current_colors.pick_random()
-			current_colors.erase(color)
-			var biome = current_biomes.pick_random()
-			current_biomes.erase(biome)
-			area["name"] = "area " + str(i) + " " + color + " " + biome
-			area["story"] = get_area_story()
+		var color = current_colors.pick_random()
+		current_colors.erase(color)
+		var biome = current_biomes.pick_random()
+		current_biomes.erase(biome)
+		area["name"] = "area " + str(i) + " " + color + " " + biome
+		area["story"] = get_area_story()
 		story.append(area)
 	story.append("end")
 	
@@ -120,16 +111,28 @@ func insert_element(element : String, array : Array) -> Array:
 	var index = array.size()
 	array.append(element + str(id))
 	if element in add_constraints:
-		var constrained = add_constraints[element]
+		var constrained = add_constraints[element].pick_random()
 		array.insert(randi_range(0,index), constrained + str(id))
 	id += 1
 	return array
 
+# nested array of Array containting Array of string [0] and weight [1]
+func pick_weighted_random(array : Array) -> String:
+	var total_weight: float = 0.0
+	for entry in array:
+		total_weight += entry[1]
+	var r: float = randf_range(0.0, total_weight)
+	for entry in array:
+		r -= entry[1]
+		if r <= 0:
+			return entry[0]
+	return array.back()[0]
+
 func get_area_story() -> Array:
 	var c_story = []
 	var blocks_count = randi_range(min_story_blocks, max_story_blocks)
-	for i in range(blocks_count):
-		var chunk = elements.pick_random()
+	while c_story.size() < blocks_count:
+		var chunk = pick_weighted_random(element_types)
 		c_story = insert_element(chunk, c_story)
 		#c_story.append(chunk)
 	return c_story
