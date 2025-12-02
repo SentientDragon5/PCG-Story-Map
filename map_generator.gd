@@ -67,9 +67,9 @@ func _process(_delta: float) -> void:
 
 func lod_update(zoomIndex : int):
 	for zone in locations.get_children():
-		if zone is not Line2D:
+			zone.visible = zoomIndex < 4
+		elif zone is Node2D:
 			zone.get_node("Name").visible = zoomIndex < 4
-			# show the path and points if important
 
 func generate():
 	noise.seed = randi()
@@ -79,6 +79,7 @@ func generate():
 	discard_outer_locations()
 	distort_borders()
 	create_zone_path()
+	add_poi()
 
 # loosely based of https://editor.p5js.org/Cacarisse/sketches/vBSru9PBF
 # Poisson Scatter

@@ -66,3 +66,45 @@ theme = SubResource("Theme_tbgi4")
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "WASD to move camera, E and Q to zoom in and out, R to re-generate"
 horizontal_alignment = 1
+
+[node name="FoldableContainer" type="FoldableContainer" parent="CanvasLayer"]
+offset_right = 24.0
+offset_bottom = 32.0
+title = "Options"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/FoldableContainer"]
+layout_mode = 2
+
+[node name="ShowPaths" type="CheckBox" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
+layout_mode = 2
+text = "Show Paths"
+
+[node name="Button" type="Button" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
+layout_mode = 2
+text = "Regenerate"
+
+[node name="AreasContainer" type="HBoxContainer" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/FoldableContainer/VBoxContainer/AreasContainer"]
+layout_mode = 2
+text = "Areas"
+
+[node name="AreasSpinBox" type="SpinBox" parent="CanvasLayer/FoldableContainer/VBoxContainer/AreasContainer"]
+layout_mode = 2
+min_value = 5.0
+value = 10.0
+rounded = true
+
+[node name="POIContainer" type="HBoxContainer" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer"]
+layout_mode = 2
+text = "Areas"
+
+[node name="POISpinBox" type="SpinBox" parent="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer"]
+layout_mode = 2
+min_value = 5.0
+value = 10.0
+rounded = true
