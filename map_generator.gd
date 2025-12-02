@@ -173,7 +173,7 @@ func make_borders():
 			line.default_color = Color.BLACK;
 			line.closed = true;
 			#line.default_color = zone.modulate
-			line.default_color.a = 0.5 
+			#line.default_color.a = 0.5 
 			zone.add_child(line)
 			line.global_position = Vector2.ZERO
 
@@ -248,7 +248,7 @@ func distort_borders():
 		#line.width = 4.0
 		line.default_color = Color.BLACK
 		line.closed = true
-		line.default_color.a = 0.5
+		#line.default_color.a = 0.5
 		zone.add_child(line)
 		line.global_position = Vector2.ZERO
 		

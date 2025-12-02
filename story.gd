@@ -10,7 +10,7 @@ var elements = [
 var element_types = [
 	["lock", "combat", "puzzle", "parkour"],
 	["tool", "ability", "lore", "collectable", "key"],
-	["landmark"],
+	["landmark", "village", "home"],
 	["key", "escort", "fetch"]
 ]
 
@@ -99,6 +99,7 @@ func generate():
 	
 	for c in story:
 		var label = Label.new()
+		label.modulate = Color.BLACK
 		if c is String:
 			label.text = c
 		elif c is Dictionary:
@@ -111,6 +112,7 @@ func generate():
 			for d in c["story"]:
 				if d is String:
 					var sub_label = Label.new()
+					sub_label.modulate = Color.DIM_GRAY
 					sub_label.text = d
 					hbox.add_child(sub_label)
 

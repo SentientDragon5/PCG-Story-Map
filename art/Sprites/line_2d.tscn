@@ -1,7 +1,5 @@
-[gd_scene load_steps=2 format=3 uid="uid://coxrcxjl6t5ca"]
-
-[ext_resource type="Texture2D" uid="uid://bngp0u4r50hcf" path="res://art/line.png" id="1_4ail5"]
+[gd_scene format=3 uid="uid://coxrcxjl6t5ca"]
 
 [node name="Line2D" type="Line2D"]
-texture = ExtResource("1_4ail5")
+width = 5.0
 texture_mode = 1
