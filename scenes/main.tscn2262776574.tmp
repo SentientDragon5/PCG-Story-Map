@@ -83,6 +83,7 @@ underline = 1
 uri = "https://github.com/SentientDragon5/PCG-Story-Map"
 
 [node name="ShowPaths" type="CheckBox" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 text = "Hide Paths"
 
@@ -113,9 +114,8 @@ text = "Min:"
 
 [node name="POIMinSpinBox" type="SpinBox" parent="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer"]
 layout_mode = 2
-min_value = 1.0
-max_value = 20.0
-value = 4.0
+min_value = 5.0
+value = 10.0
 rounded = true
 
 [node name="Label3" type="Label" parent="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer"]
@@ -124,9 +124,8 @@ text = "Max:"
 
 [node name="POIMaxSpinBox" type="SpinBox" parent="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer"]
 layout_mode = 2
-min_value = 1.0
-max_value = 20.0
-value = 6.0
+min_value = 5.0
+value = 10.0
 rounded = true
 
 [node name="Distort" type="CheckBox" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
@@ -167,7 +166,6 @@ position = Vector2(659, -255)
 
 [connection signal="toggled" from="CanvasLayer/FoldableContainer/VBoxContainer/ShowPaths" to="." method="_on_show_paths_toggled"]
 [connection signal="value_changed" from="CanvasLayer/FoldableContainer/VBoxContainer/AreasContainer/AreasSpinBox" to="." method="_on_areas_spin_box_value_changed"]
-[connection signal="value_changed" from="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer/POIMinSpinBox" to="." method="_on_poi_min_spin_box_value_changed"]
 [connection signal="value_changed" from="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer/POIMaxSpinBox" to="." method="_on_poi_spin_box_value_changed"]
 [connection signal="toggled" from="CanvasLayer/FoldableContainer/VBoxContainer/Distort" to="." method="_on_distort_toggled"]
 [connection signal="toggled" from="CanvasLayer/FoldableContainer/VBoxContainer/Oceans" to="." method="_on_oceans_toggled"]

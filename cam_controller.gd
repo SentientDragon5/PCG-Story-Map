@@ -22,11 +22,10 @@ func _ready() -> void:
 		target_zoom = Vector2(initial_zoom_value, initial_zoom_value)
 		zoom = target_zoom
 
-func _process(delta: float) -> void:
-	var move_vector = Input.get_vector("left", "right", "up", "down")
-	target_position += move_vector * speed * Vector2(1/target_zoom.x,1/target_zoom.y) * delta
+var move_vector = Vector2.ZERO
+func _unhandled_input(_event: InputEvent) -> void:
+	move_vector = Input.get_vector("left", "right", "up", "down")	
 	
-
 	if Input.is_action_just_pressed("zoom_in"):
 		current_zoom_index = clamp(current_zoom_index + 1, 0, zoom_levels.size() - 1)
 		var new_zoom = zoom_levels[current_zoom_index]
@@ -39,6 +38,8 @@ func _process(delta: float) -> void:
 		target_zoom = Vector2(new_zoom, new_zoom)
 		onZoom.emit(current_zoom_index)
 
+
 func _physics_process(delta: float) -> void:
+	target_position += move_vector * speed * Vector2(1/target_zoom.x,1/target_zoom.y) * delta
 	position = lerp(position, target_position, smoothing_speed * delta)
 	zoom = lerp(zoom, target_zoom, zoom_speed * delta)

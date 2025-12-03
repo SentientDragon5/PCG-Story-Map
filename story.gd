@@ -14,6 +14,18 @@ var element_types = [
 	["landmark",0.8], ["village",0.2],
 	["escort",0.5], ["fetch",0.5]
 ]
+var element_names = [
+	"lock", "combat", "puzzle", "parkour",
+	"chest", "key", "item",
+	"landmark", "village",
+	"escort", "fetch"
+]
+var element_weights = PackedFloat32Array([
+	0.25, 0.25, 0.25, 0.25,
+	1.0, 0.0, 0.0,
+	0.8, 0.2,
+	0.5, 0.5
+])
 
 var add_constraints = {
 	"reward" : ["combat", "puzzle", "parkour"],
@@ -60,13 +72,26 @@ var current_colors
 
 var story = []
 
-@export var min_story_blocks = 4
-@export var max_story_blocks = 6
+var min_story_blocks:
+	get:
+		var a = $"../CanvasLayer/FoldableContainer/VBoxContainer/POIContainer/POIMinSpinBox".value
+		var b = $"../CanvasLayer/FoldableContainer/VBoxContainer/POIContainer/POIMaxSpinBox".value
+		return min(a, b)
+var max_story_blocks:
+	get:
+		var a = $"../CanvasLayer/FoldableContainer/VBoxContainer/POIContainer/POIMinSpinBox".value
+		var b = $"../CanvasLayer/FoldableContainer/VBoxContainer/POIContainer/POIMaxSpinBox".value
+		return max(a, b)
 
 var areas
-
 var id = 0
 
+var biomeRng : RandomNumberGenerator:
+	get:
+		return $"..".biomeRng
+var storyBlockRng : RandomNumberGenerator:
+	get:
+		return $"..".storyBlockRng
 #func _ready() -> void:
 	#generate()
 	#
@@ -81,16 +106,15 @@ func generate(areas_count: int):
 		c.queue_free()
 	current_colors = colors.duplicate()
 	current_biomes = biomes.duplicate()
-	print(current_biomes)
 	id = 0
 	
 	# start
 	for i in range(areas_count):
 		# add area
 		var area = {}
-		var color = current_colors.pick_random()
+		var color = current_colors[biomeRng.randf_range(0,current_colors.size())]
 		current_colors.erase(color)
-		var biome = current_biomes.pick_random()
+		var biome = current_biomes[biomeRng.randf_range(0,current_biomes.size())]
 		#current_biomes.erase(biome)
 		# Were nil ^
 		#  "area " + str(i) + " " + 
@@ -125,27 +149,15 @@ func insert_element(element : String, array : Array) -> Array:
 	array.append(element + str(id))
 	if element in add_constraints:
 		var constrained = add_constraints[element].pick_random()
-		array.insert(randi_range(0,index), constrained + str(id))
+		array.insert(storyBlockRng.randi_range(0,index), constrained + str(id))
 	id += 1
 	return array
 
-# nested array of Array containting Array of string [0] and weight [1]
-func pick_weighted_random(array : Array) -> String:
-	var total_weight: float = 0.0
-	for entry in array:
-		total_weight += entry[1]
-	var r: float = randf_range(0.0, total_weight)
-	for entry in array:
-		r -= entry[1]
-		if r <= 0:
-			return entry[0]
-	return array.back()[0]
-
 func get_area_story() -> Array:
 	var c_story = []
-	var blocks_count = randi_range(min_story_blocks, max_story_blocks)
+	var blocks_count = storyBlockRng.randi_range(min_story_blocks, max_story_blocks)
 	while c_story.size() < blocks_count:
-		var chunk = pick_weighted_random(element_types)
+		var chunk = element_names[storyBlockRng.rand_weighted(element_weights)]
 		c_story = insert_element(chunk, c_story)
 		#c_story.append(chunk)
 	return c_story

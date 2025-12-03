@@ -25,6 +25,11 @@ const emotion_colors : Array[Color] = [
 @export var noise : FastNoiseLite = FastNoiseLite.new()
 
 @onready var sample_label: Label = $SampleLabel
+var rng : RandomNumberGenerator = RandomNumberGenerator.new()
+
+var biomeRng : RandomNumberGenerator = RandomNumberGenerator.new()
+var storyBlockRng : RandomNumberGenerator = RandomNumberGenerator.new()
+@onready var seed_value: LineEdit = $CanvasLayer/FoldableContainer/VBoxContainer/SeedContainer/Seed
 
 @export var lod = 2
 @export var show_paths = true
@@ -40,7 +45,7 @@ func _ready() -> void:
 	
 func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("regenerate"):
-		generate()
+		rerollGenerate()
 
 func _process(_delta: float) -> void:
 	var mouse_pos = get_local_mouse_position()
@@ -69,8 +74,15 @@ func update_ui():
 			zone.get_node("POIs").visible = lod >= 4
 			zone.get_node("POIs").get_node("POI Path").visible = show_paths
 
+func rerollGenerate():
+	seed_value.text = str(randi())
+	generate()
+
 func generate():
-	noise.seed = randi()
+	noise.seed = int(seed_value.text)
+	rng.seed = int(seed_value.text)
+	biomeRng.seed = int(seed_value.text)
+	storyBlockRng.seed = int(seed_value.text)
 	await make_locations()
 	await make_borders()
 	discard_outer_locations()
@@ -95,8 +107,8 @@ func make_locations():
 	for i in range(num_locations):
 		for j in range(max_attempts_per_location):
 			var candidate_pos = Vector2(
-				randf_range(margin, map_bounds.size.x - margin),
-				randf_range(margin, map_bounds.size.y - margin)
+				rng.randf_range(margin, map_bounds.size.x - margin),
+				rng.randf_range(margin, map_bounds.size.y - margin)
 			) + map_bounds.global_position
 			
 			var ok = true
@@ -442,8 +454,8 @@ func get_random_points_in_polygon(polygon: PackedVector2Array, num_points : int 
 	var points = []
 	for i in range(max_attempts):
 		var rand_point = Vector2(
-			randf_range(bounds.position.x, bounds.end.x),
-			randf_range(bounds.position.y, bounds.end.y)
+			rng.randf_range(bounds.position.x, bounds.end.x),
+			rng.randf_range(bounds.position.y, bounds.end.y)
 		)
 		if Geometry2D.is_point_in_polygon(rand_point, polygon):
 			var too_close = false
@@ -540,12 +552,18 @@ func find_best_end_point(candidates: PackedVector2Array, next_zone: Node2D) -> V
 #endregion
 
 #region ui callbacks
-func _on_poi_spin_box_value_changed(value: float) -> void:
+func _on_poi_spin_box_value_changed(_value: float) -> void:
 	update_ui()
+	generate()
 
+func _on_poi_min_spin_box_value_changed(_value: float) -> void:
+	update_ui()
+	generate()
+	
 func _on_areas_spin_box_value_changed(value: float) -> void:
 	num_locations = value
 	update_ui()
+	generate()
 
 func _on_regenerate_button_pressed() -> void:
 	generate()
@@ -560,8 +578,12 @@ func lod_update(zoomIndex : int):
 
 func _on_oceans_toggled(toggled_on: bool) -> void:
 	hide_oceans = toggled_on
+	generate()
 
 func _on_distort_toggled(toggled_on: bool) -> void:
 	distort = toggled_on
-	
+	generate()
+
+func _on_reroll_pressed() -> void:
+	rerollGenerate()
 #endregion
