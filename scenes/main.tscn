@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ti3gtjec8twv" path="res://map_generator.gd" id="1_0wfyh"]
 [ext_resource type="Texture2D" uid="uid://cie0qdc1i4se6" path="res://art/parchment.png" id="1_o5qli"]
-[ext_resource type="Script" uid="uid://dy6f25e30nkdo" path="res://cam_controller.gd" id="3_sugp2"]
+[ext_resource type="Script" path="res://cam_controller.gd" id="3_sugp2"]
 [ext_resource type="FontFile" uid="uid://b50dyjdtl1ig0" path="res://art/fonts/TabulaPeutingeriana-ELv9.ttf" id="4_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://cimrdmdy834c3" path="res://scenes/story.tscn" id="5_tbgi4"]
 
@@ -114,10 +114,12 @@ rounded = true
 
 [node name="Distort" type="CheckBox" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
 layout_mode = 2
+button_pressed = true
 text = "Distort"
 
 [node name="Oceans" type="CheckBox" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
 layout_mode = 2
+button_pressed = true
 text = "Oceans"
 
 [node name="Story" parent="." instance=ExtResource("5_tbgi4")]

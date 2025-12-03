@@ -28,8 +28,8 @@ const emotion_colors : Array[Color] = [
 
 @export var lod = 2
 @export var show_paths = true
-@export var distort = false
-@export var show_oceans = false
+@export var distort = true
+@export var hide_oceans = true
 
 func _ready() -> void:
 	randomize()
@@ -209,7 +209,7 @@ func discard_outer_locations():
 				is_outer = true
 				break
 		if is_outer:
-			if show_oceans:
+			if hide_oceans:
 				zone.queue_free()
 			else:
 				zone.name = "Ocean"
@@ -559,7 +559,7 @@ func lod_update(zoomIndex : int):
 	update_ui()
 
 func _on_oceans_toggled(toggled_on: bool) -> void:
-	show_oceans = toggled_on
+	hide_oceans = toggled_on
 
 func _on_distort_toggled(toggled_on: bool) -> void:
 	distort = toggled_on
