@@ -2,6 +2,9 @@
 
 This is a map generator using perlin displaced voronoi and weighted grammars to generate maps.
 
+## Video
+[Youtube](https://youtu.be/LInyxgi1ZO0)
+
 ## References
 - https://thingonitsown.blogspot.com/2018/10/island-generation.html
 - https://editor.p5js.org/Cacarisse/sketches/vBSru9PBF
