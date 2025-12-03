@@ -28,6 +28,8 @@ const emotion_colors : Array[Color] = [
 
 @export var lod = 2
 @export var show_paths = true
+@export var distort = false
+@export var show_oceans = false
 
 func _ready() -> void:
 	randomize()
@@ -74,10 +76,10 @@ func generate():
 	discard_outer_locations()
 	distort_borders()
 	create_zone_path()
-	add_poi()
 	
 	story.generate(valid_zones.size())
 	name_locations()
+	add_poi()
 	await get_tree().process_frame
 	update_ui()
 
@@ -85,6 +87,8 @@ func generate():
 # Poisson Scatter
 func make_locations():
 	for c in locations.get_children():
+		c.queue_free()
+	for c in $Oceans.get_children():
 		c.queue_free()
 	await get_tree().process_frame
 	
@@ -205,11 +209,14 @@ func discard_outer_locations():
 				is_outer = true
 				break
 		if is_outer:
-			zone.queue_free()
-			#zone.name = "Ocean"
-			#var label = zone.get_node("Name")
-			#label.text = "Ocean"
-			#label.modulate = Color.AQUA
+			if show_oceans:
+				zone.queue_free()
+			else:
+				zone.name = "Ocean"
+				#var label = zone.get_node("Name")
+				#label.text = "Ocean"
+				#label.modulate = Color.AQUA
+				zone.reparent($Oceans)
 
 func distort_borders():
 	# for each location, get its Line2D Border and subdivide it
@@ -263,10 +270,11 @@ func distort_borders():
 		#line.default_color.a = 0.5
 		zone.add_child(line)
 		line.global_position = Vector2.ZERO
+		line.visible = distort
 		
 		if zone.has_node("Poly"):
 			zone.get_node("Poly").visible = false
-		simple_border.visible = false
+		simple_border.visible = not distort
 
 func create_zone_path():
 	if locations.has_node("GlobalPath"):
@@ -305,6 +313,11 @@ func add_poi():
 		var zone = zones[i]
 		var next_zone = zones[i+1] if i < zones.size() - 1 else null
 		
+		var zone_story_elements : Array = []
+		if i < story.story.size():
+			zone_story_elements = story.story[i]["story"]
+		print(story.story)
+		
 		var poly_points : PackedVector2Array
 		if zone.has_node("DistortPoly"):
 			poly_points = zone.get_node("DistortPoly").polygon
@@ -313,7 +326,7 @@ func add_poi():
 		else:
 			continue
 		
-		var num_poi = 10
+		var num_poi = zone_story_elements.size()
 		var points_in_zone = get_random_points_in_polygon(poly_points, num_poi)
 		
 		var start_point : Vector2
@@ -338,11 +351,24 @@ func add_poi():
 		poi_container.name = "POIs"
 		zone.add_child(poi_container)
 		
-		for pos in path_points:
-			var node = add_poi_icon()
+		for j in range(path_points.size()):
+			var pos = path_points[j]
+			var node = Node2D.new() # add_poi_icon()
 			node.position = pos - zone.position
 			var s = 0.15
 			node.scale = Vector2(s, s)
+			
+			if j < zone_story_elements.size():
+				var element_name = zone_story_elements[j]
+				node.name = element_name
+				
+				var label = AREA_LABEL_PREFAB.instantiate()
+				label.text = element_name
+				#label.position = Vector2(-50, -150)
+				label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				label.modulate = Color.BLACK
+				label.scale = Vector2(2, 2)
+				node.add_child(label)
 			poi_container.add_child(node)
 			
 		var line : Line2D = LINE_PREFAB.instantiate()
@@ -496,7 +522,7 @@ func find_best_end_point(candidates: PackedVector2Array, next_zone: Node2D) -> V
 	if not border_line:
 		border_line = next_zone.get_node_or_null("Border")
 	if not border_line or candidates.is_empty():
-		return candidates[candidates.size() - 1]
+		return candidates[candidates.size()]# -1 
 		
 	var border_points = border_line.points
 	
@@ -531,4 +557,11 @@ func _on_show_paths_toggled(toggled_on: bool) -> void:
 func lod_update(zoomIndex : int):
 	lod = zoomIndex
 	update_ui()
+
+func _on_oceans_toggled(toggled_on: bool) -> void:
+	show_oceans = toggled_on
+
+func _on_distort_toggled(toggled_on: bool) -> void:
+	distort = toggled_on
+	
 #endregion

@@ -45,16 +45,16 @@ var colors = [
 	"antiquitus"
 ]
 var color_map = {
-	"verdant": Color.FOREST_GREEN,
-	"lustrous": Color.GOLD,
-	"prismatic": Color.AZURE,
-	"pale": Color.LIGHT_GRAY,
+	"verdant": Color.DARK_GREEN,
+	"lustrous": Color.ORANGE_RED,
+	"prismatic": Color.DARK_ORCHID,
+	"pale": Color.DIM_GRAY,
 	"sanguine": Color.DARK_RED,
 	"verdigris": Color.TEAL,
 	"sapphire": Color.ROYAL_BLUE,
 	"ruby": Color.CRIMSON,
 	"dark": Color.DARK_SLATE_GRAY,
-	"antiquitus": Color.BURLYWOOD
+	"antiquitus": Color.DARK_SLATE_BLUE
 }
 var current_colors
 

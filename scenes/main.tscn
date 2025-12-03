@@ -77,6 +77,7 @@ title = "Options"
 layout_mode = 2
 
 [node name="ShowPaths" type="CheckBox" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 text = "Hide Paths"
 
@@ -111,10 +112,22 @@ min_value = 5.0
 value = 10.0
 rounded = true
 
+[node name="Distort" type="CheckBox" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
+layout_mode = 2
+text = "Distort"
+
+[node name="Oceans" type="CheckBox" parent="CanvasLayer/FoldableContainer/VBoxContainer"]
+layout_mode = 2
+text = "Oceans"
+
 [node name="Story" parent="." instance=ExtResource("5_tbgi4")]
 position = Vector2(659, -255)
+
+[node name="Oceans" type="Node2D" parent="."]
 
 [connection signal="toggled" from="CanvasLayer/FoldableContainer/VBoxContainer/ShowPaths" to="." method="_on_show_paths_toggled"]
 [connection signal="pressed" from="CanvasLayer/FoldableContainer/VBoxContainer/RegenerateButton" to="." method="_on_regenerate_button_pressed"]
 [connection signal="value_changed" from="CanvasLayer/FoldableContainer/VBoxContainer/AreasContainer/AreasSpinBox" to="." method="_on_areas_spin_box_value_changed"]
 [connection signal="value_changed" from="CanvasLayer/FoldableContainer/VBoxContainer/POIContainer/POISpinBox" to="." method="_on_poi_spin_box_value_changed"]
+[connection signal="toggled" from="CanvasLayer/FoldableContainer/VBoxContainer/Distort" to="." method="_on_distort_toggled"]
+[connection signal="toggled" from="CanvasLayer/FoldableContainer/VBoxContainer/Oceans" to="." method="_on_oceans_toggled"]
